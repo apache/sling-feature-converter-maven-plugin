@@ -45,7 +45,7 @@
         <jackrabbit-api.version>2.18.4</jackrabbit-api.version>
         <javax.json.version>1.0.4</javax.json.version>
         <org.apache.jackrabbit.vault.version>3.2.8</org.apache.jackrabbit.vault.version>
-        <maven.version>3.5.0</maven.version>
+        <maven.version>3.8.1</maven.version>
         <maven.scm.version>1.11.1</maven.scm.version>
         <maven-artifact-transfer.version>0.11.0</maven-artifact-transfer.version>
         <maven-plugin-annotations.version>3.5</maven-plugin-annotations.version>
