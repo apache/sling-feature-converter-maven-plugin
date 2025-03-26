@@ -49,7 +49,7 @@
         <maven.scm.version>1.11.1</maven.scm.version>
         <maven-artifact-transfer.version>0.11.0</maven-artifact-transfer.version>
         <maven-plugin-annotations.version>3.5</maven-plugin-annotations.version>
-        <plexus-archiver.version>3.5</plexus-archiver.version>
+        <plexus-archiver.version>4.8.0</plexus-archiver.version>
         <mockito-all.version>1.10.19</mockito-all.version>
         <maven.site.path>${project.artifactId}-archives/${project.artifactId}-LATEST</maven.site.path>
     </properties>
