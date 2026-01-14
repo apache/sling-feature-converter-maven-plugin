@@ -63,10 +63,8 @@ import org.codehaus.plexus.util.*;
         if(!convertedPackageFile.exists()) {
             throw new Exception("Converted Package File was not created: " + convertedPackageFile);
         }
-        // TODO: Adjust the code here to also support local repositories when this is activated
-        File userHomeFolder = new File(System.getProperty("user.home"));
-        File localMavenRepo = new File(userHomeFolder, ".m2/repository");
-        File convertedPackageTargetFolder = new File(localMavenRepo, projectGroupPath + "/" + projectName + "/" + projectVersion);
+        // Use the local repository path configured for the invoker plugin
+        File convertedPackageTargetFolder = new File(localRepositoryPath, projectGroupPath + "/" + projectName + "/" + projectVersion);
         if(!convertedPackageTargetFolder.exists()) {
             throw new Exception("Converted Package Target (Maven) Folder was not created: " + convertedPackageTargetFolder);
         }
