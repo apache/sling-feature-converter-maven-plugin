@@ -1,20 +1,32 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.apache.sling.cpconverter.maven.mojos;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DefaultArtifact;
@@ -26,16 +38,6 @@ import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.aether.resolution.ArtifactRequest;
 import org.eclipse.aether.resolution.ArtifactResult;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public class ContentPackage {
 
@@ -76,7 +78,7 @@ public class ContentPackage {
 
     public void setModuleIsContentPackage(boolean moduleIsContentPackage) {
         this.moduleIsContentPackage = moduleIsContentPackage;
-        if(this.moduleIsContentPackage) {
+        if (this.moduleIsContentPackage) {
             types.add("content-package");
         } else {
             types.remove("content-package");
@@ -87,8 +89,10 @@ public class ContentPackage {
         return moduleIsContentPackage;
     }
 
-    Collection<Artifact> getMatchingArtifacts(final MavenProject project,
-            RepositorySystem repoSystem, RepositorySystemSession repoSession,
+    Collection<Artifact> getMatchingArtifacts(
+            final MavenProject project,
+            RepositorySystem repoSystem,
+            RepositorySystemSession repoSession,
             List<RemoteRepository> remoteRepos) {
         // get artifacts depending on whether we exclude transitives or not
         final Set<Artifact> artifacts;
@@ -121,7 +125,7 @@ public class ContentPackage {
         }
 
         // Add the project artifact itself to convert after building a content package
-        if(moduleIsContentPackage) {
+        if (moduleIsContentPackage) {
             Artifact projectArtifact = project.getArtifact();
             System.out.println("Project Artifact: " + projectArtifact);
             fileArtifacts.add(projectArtifact);
@@ -129,13 +133,18 @@ public class ContentPackage {
         return getMatchingArtifacts(fileArtifacts);
     }
 
-    private Artifact resolveArtifact(final RepositorySystem repoSystem, final RepositorySystemSession repoSession,
-            final List<RemoteRepository> remoteRepos, final Artifact artifact) {
+    private Artifact resolveArtifact(
+            final RepositorySystem repoSystem,
+            final RepositorySystemSession repoSession,
+            final List<RemoteRepository> remoteRepos,
+            final Artifact artifact) {
         try {
             // Get an Aether Artifact
             org.eclipse.aether.artifact.Artifact a = new org.eclipse.aether.artifact.DefaultArtifact(
-                    artifact.getGroupId(), artifact.getArtifactId(),
-                    artifact.getClassifier(), artifact.getType(),
+                    artifact.getGroupId(),
+                    artifact.getArtifactId(),
+                    artifact.getClassifier(),
+                    artifact.getType(),
                     artifact.getVersion());
 
             ArtifactRequest req = new ArtifactRequest(a, remoteRepos, null);
@@ -144,8 +153,13 @@ public class ContentPackage {
             if (res.isResolved()) {
                 org.eclipse.aether.artifact.Artifact aetherArt = res.getArtifact();
                 Artifact mavenArt = new DefaultArtifact(
-                        aetherArt.getGroupId(), aetherArt.getArtifactId(), aetherArt.getVersion(), null, aetherArt.getExtension(),
-                        aetherArt.getClassifier(), new DefaultArtifactHandler());
+                        aetherArt.getGroupId(),
+                        aetherArt.getArtifactId(),
+                        aetherArt.getVersion(),
+                        null,
+                        aetherArt.getExtension(),
+                        aetherArt.getClassifier(),
+                        new DefaultArtifactHandler());
                 mavenArt.setFile(aetherArt.getFile());
                 return mavenArt;
             } else {
@@ -164,11 +178,11 @@ public class ContentPackage {
             System.out.println("Check Artifact Artifact: " + artifact.getArtifactId());
             System.out.println("Check Artifact Type: " + artifact.getType());
             System.out.println("Check Artifact Classifier: " + artifact.getClassifier());
-            if(groupId.equals(artifact.getGroupId())
-                && artifactId.equals(artifact.getArtifactId())
-                && types.contains(artifact.getType())
-                && (classifier.equals(artifact.getClassifier()) || (classifier.equals("") && artifact.getClassifier() == null))
-            ) {
+            if (groupId.equals(artifact.getGroupId())
+                    && artifactId.equals(artifact.getArtifactId())
+                    && types.contains(artifact.getType())
+                    && (classifier.equals(artifact.getClassifier())
+                            || (classifier.equals("") && artifact.getClassifier() == null))) {
                 matches.add(artifact);
             }
         }

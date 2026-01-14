@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
     Licensed to the Apache Software Foundation (ASF) under one or more contributor license
     agreements. See the NOTICE file distributed with this work for additional information
@@ -26,16 +26,14 @@
     <packaging>maven-plugin</packaging>
 
     <name>Apache Sling Feature Model Converter Plugin</name>
-    <description>
-        Maven Plugin to convert Configurations / Packages to Feature Model format
-    </description>
+    <description>Maven Plugin to convert Configurations / Packages to Feature Model format</description>
     <url>https://sling.apache.org/components/sling-feature-converter-maven-plugin/</url>
 
     <scm>
         <connection>scm:git:https://gitbox.apache.org/repos/asf/sling-feature-converter-maven-plugin.git</connection>
         <developerConnection>scm:git:https://gitbox.apache.org/repos/asf/sling-feature-converter-maven-plugin.git</developerConnection>
-        <url>https://github.com/apache/sling-feature-converter-maven-plugin.git</url>
         <tag>HEAD</tag>
+        <url>https://github.com/apache/sling-feature-converter-maven-plugin.git</url>
     </scm>
 
     <properties>
@@ -51,96 +49,6 @@
         <mockito-all.version>1.10.19</mockito-all.version>
         <maven.site.path>${project.artifactId}-archives/${project.artifactId}-LATEST</maven.site.path>
     </properties>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.plexus</groupId>
-                <artifactId>plexus-component-metadata</artifactId>
-                <version>${plexus-component-metadata.version}</version>
-                <executions>
-                    <execution>
-                        <id>generate-metadata</id>
-                        <goals>
-                            <goal>generate-metadata</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-plugin-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>mojo-descriptor</id>
-                        <phase>process-classes</phase>
-                        <goals>
-                            <goal>descriptor</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>generated-helpmojo</id>
-                        <goals>
-                            <goal>helpmojo</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-scm-publish-plugin</artifactId>
-                <configuration>
-                    <checkoutDirectory>${user.home}/maven-sites/${maven.site.path}</checkoutDirectory>
-                    <tryUpdate>true</tryUpdate>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.rat</groupId>
-                <artifactId>apache-rat-plugin</artifactId>
-                <configuration>
-                    <excludes>
-                        <exclude>src/site/markdown/**</exclude>
-                        <exclude>src/test/resources/**/*.txt</exclude>
-                        <exclude>src/test/resources/**/*.feature</exclude>
-                        <exclude>src/test/resources/META-INF/services/*</exclude>
-                        <exclude>src/it/**/*.json</exclude>
-                    </excludes>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-invoker-plugin</artifactId>
-                <configuration>
-                    <debug>true</debug>
-                    <projectsDirectory>src/it</projectsDirectory>
-                    <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
-                    <pomIncludes>
-                        <pomInclude>*/pom.xml</pomInclude>
-                    </pomIncludes>
-                    <postBuildHookScript>verify</postBuildHookScript>
-                    <scriptVariables>
-                        <plugin.group>${project.groupId}</plugin.group>
-                        <!-- The version of the test version which should match the plugin version but maybe off during a release -->
-                        <plugin.version>1.0.2</plugin.version>
-                    </scriptVariables>
-                    <localRepositoryPath>${project.build.directory}/it-repo</localRepositoryPath>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>integration-test</id>
-                        <goals>
-                            <goal>install</goal>
-                            <goal>integration-test</goal>
-                            <goal>verify</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 
     <dependencies>
         <dependency>
@@ -277,6 +185,96 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-component-metadata</artifactId>
+                <version>${plexus-component-metadata.version}</version>
+                <executions>
+                    <execution>
+                        <id>generate-metadata</id>
+                        <goals>
+                            <goal>generate-metadata</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-plugin-plugin</artifactId>
+                <configuration>
+                    <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>mojo-descriptor</id>
+                        <goals>
+                            <goal>descriptor</goal>
+                        </goals>
+                        <phase>process-classes</phase>
+                    </execution>
+                    <execution>
+                        <id>generated-helpmojo</id>
+                        <goals>
+                            <goal>helpmojo</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-scm-publish-plugin</artifactId>
+                <configuration>
+                    <checkoutDirectory>${user.home}/maven-sites/${maven.site.path}</checkoutDirectory>
+                    <tryUpdate>true</tryUpdate>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.rat</groupId>
+                <artifactId>apache-rat-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>src/site/markdown/**</exclude>
+                        <exclude>src/test/resources/**/*.txt</exclude>
+                        <exclude>src/test/resources/**/*.feature</exclude>
+                        <exclude>src/test/resources/META-INF/services/*</exclude>
+                        <exclude>src/it/**/*.json</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-invoker-plugin</artifactId>
+                <configuration>
+                    <debug>true</debug>
+                    <projectsDirectory>src/it</projectsDirectory>
+                    <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
+                    <pomIncludes>
+                        <pomInclude>*/pom.xml</pomInclude>
+                    </pomIncludes>
+                    <postBuildHookScript>verify</postBuildHookScript>
+                    <scriptVariables>
+                        <plugin.group>${project.groupId}</plugin.group>
+                        <!-- The version of the test version which should match the plugin version but maybe off during a release -->
+                        <plugin.version>1.0.2</plugin.version>
+                    </scriptVariables>
+                    <localRepositoryPath>${project.build.directory}/it-repo</localRepositoryPath>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>integration-test</id>
+                        <goals>
+                            <goal>install</goal>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
     <reporting>
         <plugins>
