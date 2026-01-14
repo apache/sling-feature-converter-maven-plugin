@@ -18,7 +18,7 @@ import java.io.*;
 import java.util.*;
 import org.codehaus.plexus.util.*;
 
-    boolean check() {
+    void check() throws Exception {
         String projectArtifact = "sling-feature-converter-maven-plugin-test-target-mode";
         String projectName = projectArtifact + ".ui.apps";
         String projectCoreName = projectArtifact + ".core";
@@ -31,20 +31,17 @@ import org.codehaus.plexus.util.*;
         File cpTargetFolder = new File(basedir, "ui.apps/target");
         File packageFile = new File(cpTargetFolder, projectName + "-" + projectVersion + ".zip");
         if(!packageFile.exists()) {
-            System.out.println("Content Package was not created: " + packageFile);
-            return false;
+            throw new Exception("Content Package was not created: " + packageFile);
         }
         File targetFolder = new File(basedir, "fm.launcher/target");
         File outputFolder = new File(targetFolder, "cp-conversion");
         File featureModelFolder = new File(outputFolder, "fm.out");
         if(!featureModelFolder.exists()) {
-            System.out.println("Feature Model Folder was not created" + featureModelFolder);
-            return false;
+            throw new Exception("Feature Model Folder was not created" + featureModelFolder);
         }
         File featureModelFile = new File(featureModelFolder, projectName + ".json");
         if(!featureModelFile.exists()) {
-            System.out.println("Feature Model File was not created: " + featureModelFile);
-            return false;
+            throw new Exception("Feature Model File was not created: " + featureModelFile);
         }
         String log = FileUtils.fileRead(featureModelFile);
         System.out.println("Feature Model File Content: " + log);
@@ -57,39 +54,27 @@ import org.codehaus.plexus.util.*;
         };
         for (String value : values) {
             if (log.indexOf(value) < 0) {
-                System.out.println("Did not find line: " + value + " -> FAILED!");
-                return false;
+                throw new Exception("Did not find line: " + value + " -> FAILED!");
             }
         }
         File convertedPackageFolder = new File(outputFolder, projectGroupPath + "/" + projectName + "/" + projectVersion);
         if(!convertedPackageFolder.exists()) {
-            System.out.println("Converted Package Folder was not created: " + convertedPackageFolder);
-            return false;
+            throw new Exception("Converted Package Folder was not created: " + convertedPackageFolder);
         }
         File convertedPackageFile = new File(convertedPackageFolder, projectName + "-" + projectVersion + "-cp2fm-converted.zip");
         if(!convertedPackageFile.exists()) {
-            System.out.println("Converted Package File was not created: " + convertedPackageFile);
-            return false;
+            throw new Exception("Converted Package File was not created: " + convertedPackageFile);
         }
         // Use the local repository path configured for the invoker plugin
         File convertedPackageTargetFolder = new File(localRepositoryPath, projectGroupPath + "/" + projectName + "/" + projectVersion);
         if(!convertedPackageTargetFolder.exists()) {
-            System.out.println("Converted Package Target (Maven) Folder was not created: " + convertedPackageTargetFolder);
-            return false;
+            throw new Exception("Converted Package Target (Maven) Folder was not created: " + convertedPackageTargetFolder);
         }
         File convertedPackageTargetFile = new File(convertedPackageTargetFolder, projectName + "-" + projectVersion + "-cp2fm-converted.zip");
         if(!convertedPackageTargetFile.exists()) {
-            System.out.println("Converted Package Target File was not created: " + convertedPackageTargetFile);
-            return false;
+            throw new Exception("Converted Package Target File was not created: " + convertedPackageTargetFile);
         }
+    }
 
-        return true;
-    }
-    try {
-        return check();
-    }
-    catch(Throwable t) {
-        t.printStackTrace();
-        return false;
-    }
+    check();
     return true;
