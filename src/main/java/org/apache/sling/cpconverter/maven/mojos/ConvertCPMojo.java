@@ -290,7 +290,6 @@ public class ConvertCPMojo
                                 artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion(),
                                 "compile", ZIP_TYPE, PACKAGE_CLASSIFIER, artifactHandlerManager.getArtifactHandler(ZIP_TYPE)
                             );
-//                            installConvertedCP(convertedPackage);
                         } else {
                             getLog().error("Artifact is not found: " + artifact);
                         }
@@ -322,14 +321,11 @@ public class ConvertCPMojo
      */
     private void installGeneratedArtifacts() {
         if(installConvertedCP) {
-            File userHome = new File(System.getProperty("user.home"));
-            if(userHome.isDirectory()) {
-                File destFolder = new File(userHome, ".m2/repository");
-                if(destFolder.isDirectory()) {
-                    copyFiles(convertedCPOutput, destFolder);
-                    if(isContentPackage) {
-                        installFMDescriptor(project.getArtifact());
-                    }
+            File destFolder = repoSession.getLocalRepository().getBasedir();
+            if(destFolder.isDirectory()) {
+                copyFiles(convertedCPOutput, destFolder);
+                if(isContentPackage) {
+                    installFMDescriptor(project.getArtifact());
                 }
             }
         }
