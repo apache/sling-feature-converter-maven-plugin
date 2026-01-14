@@ -1,26 +1,22 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.apache.sling.cpconverter.maven.mojos;
-
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.sling.feature.modelconverter.ProvisioningToFeature;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -31,18 +27,18 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.sling.feature.modelconverter.ProvisioningToFeature;
+
 /**
  * Converts the given list of Provisioning Models into
  * Feature Models
  */
-@Mojo(
-    name = "convert-pm",
-    requiresProject = true,
-    threadSafe = true
-)
-public final class ConvertPMMojo
-    extends AbstractBaseMojo
-{
+@Mojo(name = "convert-pm", requiresProject = true, threadSafe = true)
+public final class ConvertPMMojo extends AbstractBaseMojo {
     public static final String CFG_INPUT_FOLDER = "inputFolder";
 
     public static final String CFG_OUTPUT_FOLDER = "outputFolder";
@@ -128,7 +124,7 @@ public final class ConvertPMMojo
 
     private String checkForPlaceholder(String text) {
         String answer = text;
-        if(answer != null) {
+        if (answer != null) {
             answer = answer.replaceAll("\\$\\{\\{", "\\$\\{");
             answer = answer.replaceAll("}}", "}");
             getLog().info("Replaced Old Artifact Id Override: '" + text + "', with new one: '" + answer + "'");
@@ -147,7 +143,7 @@ public final class ConvertPMMojo
         String outputFolderPath = project.getBasedir() + "/" + outputFolder;
         File output = new File(outputFolderPath);
         if (!output.exists()) {
-            if(!output.mkdirs()) {
+            if (!output.mkdirs()) {
                 throw new MojoFailureException("Could not create Output Folder: " + outputFolder);
             }
         }
@@ -211,11 +207,11 @@ public final class ConvertPMMojo
     // Because of the XML structure run modes can have leading, trailing spaces so we need to trim them here
     public List<String> trimList(List<String> list) {
         List<String> answer = new ArrayList<>();
-        if(list != null) {
-            for(String entry: list) {
-                if(entry != null) {
+        if (list != null) {
+            for (String entry : list) {
+                if (entry != null) {
                     entry = entry.trim();
-                    if(!entry.isEmpty()) {
+                    if (!entry.isEmpty()) {
                         answer.add(entry);
                     }
                 }
