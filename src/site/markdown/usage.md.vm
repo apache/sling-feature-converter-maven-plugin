@@ -81,7 +81,7 @@ and so the copy of the resources is not done automatically:
             <artifactId>maven-resources-plugin</artifactId>
             <version>3.1.0</version>
             <configuration>
-                <outputDirectory>${sp}project.build.directory}</outputDirectory>
+                <outputDirectory>${sp}project.build.directory${ep}</outputDirectory>
                 <resources>
                     <resource>
                         <directory>src/main/resources</directory>
@@ -118,9 +118,9 @@ equivalent so that we can launch it together with the converter CP packages late
                     <configuration>
                         <inputFolder>src/main/resources/sling/provisioning</inputFolder>
                         <outputFolder>target/fm</outputFolder>
-                        <groupId>${sp}{project.groupId}}</groupId>
-                        <artifactId>${sp}{project.artifactId}}</artifactId>
-                        <version>${sp}{project.version}}</version>
+                        <groupId>${sp}{project.groupId}${ep}</groupId>
+                        <artifactId>${sp}{project.artifactId}${ep}</artifactId>
+                        <version>${sp}{project.version}${ep}</version>
                         <frameworkProperties>
                             launchpad:felix.systempackages.substitution=true,
                             launchpad:felix.systempackages.calculate.uses=true
@@ -156,8 +156,8 @@ Then we convert the Content Package:
                         <artifactIdOverride>${sp2}project.groupId}}:${sp2}project.artifactId}}:slingosgifeature:${sp3}filename}}}:${sp2}project.version}}</artifactIdOverride>
                         <installConvertedCP>true</installConvertedCP>
                         <!-- Attention: because of the hack to deal with the overrides in the local Repo the generated files must be placed locally and not in the local Maven repo -->
-                        <convertedCPOutput>${sp}project.build.directory}/fm.out</convertedCPOutput>
-                        <fmOutput>${sp}project.build.directory}/fm</fmOutput>
+                        <convertedCPOutput>${sp}project.build.directory${ep}/fm.out</convertedCPOutput>
+                        <fmOutput>${sp}project.build.directory${ep}/fm</fmOutput>
                         <fmPrefix>test-ui-apps-</fmPrefix>
                         <contentPackages>
                             <contentPackage>
@@ -196,7 +196,7 @@ Now we can aggregate, collect them into a single FM file (attach) and verify all
                     <phase>generate-test-sources</phase>
                     <goals>
                         <goal>aggregate-features</goal>
-                        <generatedFeatures>${sp}basedir}/target/fm</generatedFeatures>
+                        <generatedFeatures>${sp}basedir${ep}/target/fm</generatedFeatures>
                     </goals>
                     <configuration>
                         <aggregates>
@@ -313,7 +313,7 @@ First in each Content Package module add this plugin configuration to your POM i
 <plugin>
     <groupId>org.apache.sling</groupId>
     <artifactId>sling-feature-converter-maven-plugin</artifactId>
-    <version>${sp}sling-feature-converter-maven-plugin.version}</version>
+    <version>${sp}sling-feature-converter-maven-plugin.version${ep}</version>
     <extensions>true</extensions>
     <executions>
         <execution>
@@ -323,16 +323,16 @@ First in each Content Package module add this plugin configuration to your POM i
                 <goal>convert-cp</goal>
             </goals>
             <configuration>
-                <artifactIdOverride>${sp}project.groupId}:${sp}project.artifactId}:slingosgifeature:${sp3}filename}}}:${sp}project.version}</artifactIdOverride>
+                <artifactIdOverride>${sp}project.groupId${ep}:${sp}project.artifactId${ep}:slingosgifeature:${sp3}filename}}}:${sp}project.version${ep}</artifactIdOverride>
                 <installConvertedCP>true</installConvertedCP>
-                <convertedCPOutput>${sp}project.build.directory}/fm.out</convertedCPOutput>
-                <fmOutput>${sp}project.build.directory}/fm</fmOutput>
+                <convertedCPOutput>${sp}project.build.directory${ep}/fm.out</convertedCPOutput>
+                <fmOutput>${sp}project.build.directory${ep}/fm</fmOutput>
                 <fmPrefix>peregrine-</fmPrefix>
                 <isContentPackage>true</isContentPackage>
                 <contentPackages>
                     <contentPackage>
-                        <groupId>${sp}project.groupId}</groupId>
-                        <artifactId>${sp}project.artifactId}</artifactId>
+                        <groupId>${sp}project.groupId${ep}</groupId>
+                        <artifactId>${sp}project.artifactId${ep}</artifactId>
                     </contentPackage>
                 </contentPackages>
             </configuration>
@@ -357,7 +357,7 @@ Now we can go to the Assembly part and add the FM installed locally as artifact:
 <plugin>
     <groupId>org.apache.sling</groupId>
     <artifactId>slingfeature-maven-plugin</artifactId>
-    <version>${slingfeature-maven-plugin.version}</version>
+    <version>${sp}slingfeature-maven-plugin.version${ep}</version>
     <extensions>true</extensions>
     <configuration>
         <features>target/fm</features>
