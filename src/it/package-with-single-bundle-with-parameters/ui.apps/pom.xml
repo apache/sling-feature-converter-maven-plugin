@@ -83,6 +83,7 @@
                             <!-- On some systems the trick with the zero-width (&#8203;) space does not work so we do test it w/o place holders -->
                             <artifactIdOverride>${project.groupId}:${project.artifactId}:slingosgifeature:@project.artifactId@:${project.version}</artifactIdOverride>
                             <installConvertedPackage>true</installConvertedPackage>
+                            <slingInitialContentPolicy>KEEP</slingInitialContentPolicy>
                         </configuration>
                     </execution>
                 </executions>
