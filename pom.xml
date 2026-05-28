@@ -22,7 +22,7 @@
     </parent>
 
     <artifactId>sling-feature-converter-maven-plugin</artifactId>
-    <version>1.0.13-SNAPSHOT</version>
+    <version>1.0.14</version>
     <packaging>maven-plugin</packaging>
 
     <name>Apache Sling Feature Model Converter Plugin</name>
@@ -32,7 +32,7 @@
     <scm>
         <connection>scm:git:https://gitbox.apache.org/repos/asf/sling-feature-converter-maven-plugin.git</connection>
         <developerConnection>scm:git:https://gitbox.apache.org/repos/asf/sling-feature-converter-maven-plugin.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>sling-feature-converter-maven-plugin-1.0.14</tag>
         <url>https://github.com/apache/sling-feature-converter-maven-plugin.git</url>
     </scm>
 
