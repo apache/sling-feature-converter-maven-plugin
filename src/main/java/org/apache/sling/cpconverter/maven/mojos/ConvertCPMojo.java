@@ -40,8 +40,10 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.ProjectBuildingRequest;
 import org.apache.maven.shared.transfer.artifact.install.ArtifactInstallerException;
 import org.apache.sling.feature.cpconverter.ContentPackage2FeatureModelConverter;
+import org.apache.sling.feature.cpconverter.ContentPackage2FeatureModelConverter.SlingInitialContentPolicy;
+import org.apache.sling.feature.cpconverter.accesscontrol.AclManager;
 import org.apache.sling.feature.cpconverter.accesscontrol.DefaultAclManager;
-import org.apache.sling.feature.cpconverter.artifacts.DefaultArtifactsDeployer;
+import org.apache.sling.feature.cpconverter.artifacts.LocalMavenRepositoryArtifactsDeployer;
 import org.apache.sling.feature.cpconverter.features.DefaultFeaturesManager;
 import org.apache.sling.feature.cpconverter.filtering.RegexBasedResourceFilter;
 import org.apache.sling.feature.cpconverter.filtering.ResourceFilter;
@@ -88,6 +90,8 @@ public class ConvertCPMojo extends AbstractBaseMojo {
     public static final String CFG_EXPORT_TO_API_REGION = "exportToApiRegion";
 
     public static final String CFG_FILTER_PATTERNS = "filterPatterns";
+
+    public static final String CFG_SLING_INITIAL_CONTENT_POLICY = "slingInitialContentPolicy";
 
     public static final boolean DEFAULT_STRING_VALIDATION = false;
 
@@ -189,6 +193,18 @@ public class ConvertCPMojo extends AbstractBaseMojo {
     @Parameter(property = CFG_FILTER_PATTERNS)
     private List<String> filterPatterns;
 
+    /**
+     * Controls how cpconverter handles a bundle's {@code Sling-Initial-Content} header:
+     * {@link SlingInitialContentPolicy#KEEP} (default) keeps the initial content inside
+     * the bundle and does not extract it, matching the pre-1.1.x behaviour;
+     * {@link SlingInitialContentPolicy#EXTRACT_AND_REMOVE} extracts the initial content
+     * into content-packages and the feature model and removes it from the bundle;
+     * {@link SlingInitialContentPolicy#EXTRACT_AND_KEEP} does the same but additionally
+     * keeps the original content inside the bundle.
+     */
+    @Parameter(property = CFG_SLING_INITIAL_CONTENT_POLICY, defaultValue = "KEEP")
+    private SlingInitialContentPolicy slingInitialContentPolicy;
+
     @Parameter(defaultValue = "${repositorySystemSession}")
     private RepositorySystemSession repoSession;
 
@@ -223,64 +239,74 @@ public class ConvertCPMojo extends AbstractBaseMojo {
             }
         }
         try {
+            AclManager aclManager = new DefaultAclManager();
             DefaultFeaturesManager featuresManager = new DefaultFeaturesManager(
-                    mergeConfigurations, bundleStartOrder, fmOutput, artifactIdOverride, fmPrefix, properties);
+                    mergeConfigurations,
+                    bundleStartOrder,
+                    fmOutput,
+                    artifactIdOverride,
+                    fmPrefix,
+                    properties,
+                    aclManager);
             if (!apiRegions.isEmpty()) featuresManager.setAPIRegions(apiRegions);
 
             if (exportToApiRegion != null) featuresManager.setExportToAPIRegion(exportToApiRegion);
 
-            ContentPackage2FeatureModelConverter converter = new ContentPackage2FeatureModelConverter(strictValidation)
+            // cpconverter 1.1.x+ implements Closeable — use try-with-resources.
+            try (ContentPackage2FeatureModelConverter converter = new ContentPackage2FeatureModelConverter(
+                            strictValidation, slingInitialContentPolicy)
                     .setFeaturesManager(featuresManager)
-                    .setBundlesDeployer(new DefaultArtifactsDeployer(convertedCPOutput))
+                    .setBundlesDeployer(new LocalMavenRepositoryArtifactsDeployer(convertedCPOutput))
                     .setEntryHandlersManager(new DefaultEntryHandlersManager())
-                    .setAclManager(new DefaultAclManager())
+                    .setAclManager(aclManager)
                     .setEmitter(DefaultPackagesEventsEmitter.open(fmOutput))
-                    .setResourceFilter(getResourceFilter());
+                    .setResourceFilter(getResourceFilter())) {
 
-            if (contentPackages == null || contentPackages.isEmpty()) {
-                getLog().info("Project Artifact File: " + project.getArtifact());
-                String targetPath = project.getModel().getBuild().getDirectory() + "/"
-                        + project.getModel().getBuild().getFinalName()
-                        + "." + ZIP_TYPE;
-                File targetFile = new File(targetPath);
-                if (targetFile.exists() && targetFile.isFile() && targetFile.canRead()) {
-                    converter.convert(project.getArtifact().getFile());
-                } else {
-                    getLog().error("Artifact is not found: " + targetPath);
-                }
-            } else {
-                for (ContentPackage contentPackage : contentPackages) {
-                    contentPackage.setExcludeTransitive(true);
-                    contentPackage.setModuleIsContentPackage(isContentPackage);
-                    getLog().info("Content Package Artifact File: " + contentPackage.toString() + ", is module CP: "
-                            + isContentPackage);
-                    final Collection<Artifact> artifacts =
-                            contentPackage.getMatchingArtifacts(project, repoSystem, repoSession, remoteRepos);
-                    if (artifacts.isEmpty()) {
-                        getLog().warn("No matching artifacts for " + contentPackage);
-                        continue;
+                if (contentPackages == null || contentPackages.isEmpty()) {
+                    getLog().info("Project Artifact File: " + project.getArtifact());
+                    String targetPath = project.getModel().getBuild().getDirectory() + "/"
+                            + project.getModel().getBuild().getFinalName()
+                            + "." + ZIP_TYPE;
+                    File targetFile = new File(targetPath);
+                    if (targetFile.exists() && targetFile.isFile() && targetFile.canRead()) {
+                        converter.convert(project.getArtifact().getFile());
+                    } else {
+                        getLog().error("Artifact is not found: " + targetPath);
                     }
-                    getLog().info("Target Convert CP of --- " + contentPackage + " ---");
-                    for (final Artifact artifact : artifacts) {
-                        final File source = artifact.getFile();
-                        getLog().info("Artifact: '" + artifact + "', source file: '" + source + "'");
-                        if (source != null && source.exists() && source.isFile() && source.canRead()) {
-                            converter.convert(source);
-                            Artifact convertedPackage = new DefaultArtifact(
-                                    artifact.getGroupId(),
-                                    artifact.getArtifactId(),
-                                    artifact.getVersion(),
-                                    "compile",
-                                    ZIP_TYPE,
-                                    PACKAGE_CLASSIFIER,
-                                    artifactHandlerManager.getArtifactHandler(ZIP_TYPE));
-                        } else {
-                            getLog().error("Artifact is not found: " + artifact);
+                } else {
+                    for (ContentPackage contentPackage : contentPackages) {
+                        contentPackage.setExcludeTransitive(true);
+                        contentPackage.setModuleIsContentPackage(isContentPackage);
+                        getLog().info("Content Package Artifact File: " + contentPackage.toString() + ", is module CP: "
+                                + isContentPackage);
+                        final Collection<Artifact> artifacts =
+                                contentPackage.getMatchingArtifacts(project, repoSystem, repoSession, remoteRepos);
+                        if (artifacts.isEmpty()) {
+                            getLog().warn("No matching artifacts for " + contentPackage);
+                            continue;
+                        }
+                        getLog().info("Target Convert CP of --- " + contentPackage + " ---");
+                        for (final Artifact artifact : artifacts) {
+                            final File source = artifact.getFile();
+                            getLog().info("Artifact: '" + artifact + "', source file: '" + source + "'");
+                            if (source != null && source.exists() && source.isFile() && source.canRead()) {
+                                converter.convert(source);
+                                Artifact convertedPackage = new DefaultArtifact(
+                                        artifact.getGroupId(),
+                                        artifact.getArtifactId(),
+                                        artifact.getVersion(),
+                                        "compile",
+                                        ZIP_TYPE,
+                                        PACKAGE_CLASSIFIER,
+                                        artifactHandlerManager.getArtifactHandler(ZIP_TYPE));
+                            } else {
+                                getLog().error("Artifact is not found: " + artifact);
+                            }
                         }
                     }
                 }
+                installGeneratedArtifacts();
             }
-            installGeneratedArtifacts();
         } catch (Throwable t) {
             throw new MojoExecutionException("Content Package Converter Exception", t);
         }
